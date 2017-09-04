@@ -1,0 +1,149 @@
+
+<html>
+  <head>  
+  
+  <script src="lib/angular.js"></script>
+    <script src="lib/angular.min.js"></script>
+    <title>Sample Application</title>  
+ <script type="text/javascript">
+            var app = angular.module("userManagement", []);
+         
+            //Controller Part
+            app.controller("userController", function($scope, $http) {
+         
+               
+                $scope.userlist = [];
+                $scope.userForm = {
+                    id : -1,
+                    userName : "",
+                    age : ""
+                };
+         
+                //load the data from server
+              
+                _refreshuserData();
+         
+                //HTTP POST/PUT methods for add/edit user 
+             
+                $scope.submituser = function() {
+         
+                    var method = "";
+                    var url = "";
+                    if ($scope.userForm.id == -1) {
+                        //Id is absent in form data,create new user operation
+                        method = "POST";
+                        url = 'rest/userlist';
+                    } else {
+                        //Id is present in form data, edit user operation
+                        method = "PUT";
+                        url = 'rest/userlist';
+                    }
+         
+                    $http({
+                        method : method,
+                        url : url,
+                        data : angular.toJson($scope.userForm),
+                        headers : {
+                            'Content-Type' : 'application/json'
+                        }
+                    }).then( _success, _error );
+                };
+         
+                //HTTP DELETE- delete user by Id
+                $scope.deleteuser = function(user) {
+                    $http({
+                        method : 'DELETE',
+                        url : 'rest/userlist/' + user.id
+                    }).then(_success, _error);
+                };
+ 
+             // In case of edit, populate form fields and assign form.id with user id
+                $scope.edituser = function(user) {
+                  
+                    $scope.userForm.userName = user.userName;
+                    $scope.userForm.age = user.age;
+                    $scope.userForm.id = user.id;
+                };
+         
+                /* Private Methods */
+                //HTTP GET- get all userlist collection
+                function _refreshuserData() {
+                    $http({
+                        method : 'GET',
+                        url : 'http://localhost:8080/angularCrudJava/rest/userlist'
+                    }).then(function successCallback(response) {
+                        $scope.userlist = response.data;
+                    }, function errorCallback(response) {
+                        console.log(response.statusText);
+                    });
+                }
+         
+                function _success(response) {
+                    _refreshuserData();
+                    _clearFormData()
+                }
+         
+                function _error(response) {
+                    console.log(response.statusText);
+                }
+         
+                //Clear the form
+                function _clearFormData() {
+                    $scope.userForm.id = -1;
+                    $scope.userForm.userName = "";
+                    $scope.userForm.age = "";
+                
+                };
+            });
+        </script>
+        
+    <head>
+    <body ng-app="userManagement" ng-controller="userController">
+         <h1>
+          Sample Application using AngularJs , Java 
+        </h1> 
+        <form ng-submit="submituser()">
+            <table>
+               
+                <tr>
+                    <th colspan="2">User Details</th>
+                 </tr>
+                <tr>
+                    <td>Name</td>
+                    <td><input type="text" ng-model="userForm.userName" /></td>
+                </tr>
+                <tr>
+                    <td>age</td>
+                    <td><input type="text" ng-model="userForm.age"  /></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" value="Submit" class="blue-button" /></td>
+                </tr>
+            </table>
+        </form>
+        <table>
+            <tr>
+              
+                <th>user</th>
+                <th>age</th>
+                <th>operations</th>
+               
+            </tr>
+ 
+            <tr ng-repeat="userd in userlist">
+               
+    <td> {{ userd .name }}</td>
+    <td >{{ userd .name }}</td>  
+    <td>{{userd}}</td>
+                
+                <td><a ng-click="edituser(user)" >Edit</a> | <a ng-click="deleteuser(user)">Delete</a></td>
+            </tr>
+ 
+        </table>
+ 
+       
+ 
+       
+      
+  </body>
+</html>
