@@ -1,5 +1,2 @@
 
-*.l linguist-language=Lisp
-
-# ignore archives/* in language stats
-/src/main/webapp/index.html linguist-generated=true
+src/main/webapp/index.html linguist-vendored
